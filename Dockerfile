@@ -1,21 +1,17 @@
-# Use the official Node.js image as the base image
-FROM node:14
+FROM node:10-alpine
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
-# Copy package.json and package-lock.json to install dependencies
-COPY football-imposter-backend/package*.json ./
+WORKDIR /home/node/app
 
-# Install dependencies
+COPY package*.json ./
+
+USER node
+
 RUN npm install
 
-# Copy the rest of the application code
-COPY football-imposter-backend/ .
+COPY --chown=node:node . .
 
-# Expose the port your app runs on
 EXPOSE 3001
 
-# Command to run your application
-CMD ["npm", "start"]
-
+CMD [ "npm", "start" ]
