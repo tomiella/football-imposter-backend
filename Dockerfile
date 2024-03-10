@@ -14,7 +14,7 @@ RUN npm install
 COPY football-imposter-backend/ .
 
 # Expose the port your app runs on
-EXPOSE 3000
+EXPOSE 3001
 
 # Command to run your application
 CMD ["npm", "start"]
