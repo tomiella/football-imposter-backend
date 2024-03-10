@@ -27,7 +27,7 @@ class GameServer {
     constructor(server) {
         this.io = new socketio.Server(server, {
             cors: {
-                origin: "http://localhost:3000",
+                origin: "*",
                 methods: ["GET", "POST"],
             },
         });
