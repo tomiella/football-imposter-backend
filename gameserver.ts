@@ -31,8 +31,12 @@ export class GameServer {
         if (this.io.sockets.adapter.rooms.has(data.code)) {
           socket.join(data.code);
           this.games.get(data.code)?.addPlayer(data.name, socket, false);
-          gameCode = data.code;
-          socket.emit("join-success");
+          if (this.games.get(data.code)?.getRunning() == true) {
+            socket.emit("err", "game-already-started");
+          } else {
+            gameCode = data.code;
+            socket.emit("join-success");
+          }
         } else {
           socket.emit("err", "game-not-found");
         }
