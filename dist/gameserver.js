@@ -75,7 +75,7 @@ class GameServer {
                 socket.emit("create-success", code);
             });
             socket.on("check", (code) => {
-                var _a, _b;
+                var _a, _b, _c, _d;
                 if (!socket.rooms.has(code)) {
                     socket.emit("err", "not-part-of-game");
                 }
@@ -86,6 +86,7 @@ class GameServer {
                         msg += key + " ";
                     });
                     this.io.to(code).emit("size", msg);
+                    socket.emit("owner", (_d = (_c = this.games.get(code)) === null || _c === void 0 ? void 0 : _c.getPlayerBySocket(socket)) === null || _d === void 0 ? void 0 : _d.owner);
                 }
             });
             socket.on("packet", (data) => {
@@ -115,13 +116,14 @@ class GameServer {
         });
     }
     onPacket(socket, code, data) {
-        console.log(data.cmd);
+        var _a;
+        console.log(data);
         switch (data.cmd) {
             case "changeGameRunning":
                 this.games.get(code).setRunning(data.data);
                 break;
             case "submit-player":
-                if (this.games.get(code).getState() != "picking")
+                if (((_a = this.games.get(code)) === null || _a === void 0 ? void 0 : _a.getState()) != "picking")
                     break;
                 this.games.get(code).submitPlayer(socket, data.data);
                 break;

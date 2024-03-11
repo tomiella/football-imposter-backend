@@ -17,7 +17,7 @@ class Game {
         this.getPlayerBySocket(socket).fplayer = p;
         let status = [];
         this.getAllPlayers().forEach((p, name, _map) => {
-            if (p.fplayer != "") {
+            if (p.fplayer != null) {
                 status.push(name);
             }
         });
@@ -38,7 +38,7 @@ class Game {
             let imposter;
             do {
                 imposter = values[~~(Math.random() * values.length)];
-            } while (imposter.fplayer == this.fPlayers[i]);
+            } while (imposter.fplayer.name == this.fPlayers[i].name);
             let round = {
                 imposter: imposter,
                 fplayer: this.fPlayers[i],
@@ -47,16 +47,17 @@ class Game {
         }
     }
     execRound() {
-        console.log(this.cRounds);
-        console.log(this.cR);
         let imposter_name = this.cRounds[this.cR].imposter.name;
         this.cRounds[this.cR].imposter.socket.emit("packet", {
             cmd: "round",
-            data: "imposter",
+            data: {
+                name: "imposter",
+            },
         });
         this.players.forEach((p, name, _map) => {
             if (name == imposter_name)
                 return;
+            console.log(this.fPlayers[this.cR]);
             p.socket.emit("packet", {
                 cmd: "round",
                 data: this.fPlayers[this.cR],
@@ -69,9 +70,14 @@ class Game {
             this.cR = 0;
             this.cRounds = [];
             this.getAllPlayers().forEach((p, name, _map) => {
-                p.fplayer = "";
+                p.fplayer = null;
             });
             this.setState("picking");
+            this.io.to(this.code).emit("reset-picking");
+            this.broadcast({
+                cmd: "picking-status",
+                data: [],
+            });
         }
         else {
             this.cR++;
@@ -83,7 +89,7 @@ class Game {
             name: name,
             socket: socket,
             owner: owner,
-            fplayer: "",
+            fplayer: null,
         };
         this.players.set(name, player);
     }
@@ -93,8 +99,6 @@ class Game {
     getPlayerBySocket(socket) {
         let p = undefined;
         this.players.forEach((value, key, _map) => {
-            console.log(key);
-            console.log(socket === value.socket);
             if (socket === value.socket) {
                 p = value;
             }

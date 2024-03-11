@@ -68,7 +68,12 @@ export class GameServer {
             .forEach((_value, key, _map) => {
               msg += key + " ";
             });
+
           this.io.to(code).emit("size", msg);
+          socket.emit(
+            "owner",
+            this.games.get(code)?.getPlayerBySocket(socket)?.owner,
+          );
         }
       });
 
@@ -105,14 +110,14 @@ export class GameServer {
   }
 
   private onPacket(socket: any, code: string, data: any) {
-    console.log(data.cmd);
+    console.log(data);
     switch (data.cmd) {
       case "changeGameRunning":
         this.games.get(code)!.setRunning(data.data);
         break;
 
       case "submit-player":
-        if (this.games.get(code)!.getState() != "picking") break;
+        if (this.games.get(code)?.getState() != "picking") break;
 
         this.games.get(code)!.submitPlayer(socket, data.data);
         break;
